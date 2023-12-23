@@ -142,15 +142,17 @@ if st.session_state.clicked:
     place1df = getnal(stp,rsltnum)
     st.write(place1df)
     option1 = st.selectbox('choose 1 start point',range(len(place1df)),key=3)
-    coord1 = place1df.iloc[int(option1)][2]
+    
     
     place2df = getnal(dp,rsltnum)
     st.write(place2df)
     option2 = st.selectbox('choose 1 destination',range(len(place2df)),key=4)
-    coord2 = place2df.iloc[int(option2)][2]
+    
 
     
 if st.button('input',key=233):
+    coord1 = place1df.iloc[int(option1)][2]
+    coord2 = place2df.iloc[int(option2)][2]
     test_data = data_gather(sttime=sttime,SCOL=coord2grid(coord1),ECOL=coord2grid(coord2),coord1=coord1,coord2=coord2)
     predict(test_data)
 
@@ -162,4 +164,6 @@ coord2 = st.text_input('destination',placeholder='lat,lon')
 
 if st.button('input',key=666):
     test_data = data_gather(sttime=sttime,SCOL=coord2grid(coord1),ECOL=coord2grid(coord2),coord1=coord1,coord2=coord2)
+    predict(test_data)
+
     
