@@ -24,7 +24,7 @@ def getnal(kw,rsltnum):
         params={'keyword':kw,
               'boundary':'region(深圳,0)',
               'key':'CO6BZ-DDW6M-GHQ6O-6ZHLG-VGKO2-LZFU3',
-              'page_size':3}
+              'page_size':rsltnum}
 
         response = req.get(url,params=params)
         answer = response.json()
@@ -41,6 +41,7 @@ def getnal(kw,rsltnum):
                 'keywords':kw,
                 'region':'深圳市',
                 'city_limit':'true',
+                'page_size':rsltnum
                 }
 
         a = req.get(url=url,params=params)
