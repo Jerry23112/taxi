@@ -18,23 +18,48 @@ with open('HGBReg.pkl','rb') as file:
 
 
 def getnal(kw,rsltnum):
-    url='https://restapi.amap.com/v5/place/text?parameters'
-    params = {'key':'1773ce2be463500a6a9086623099e421',
-            'keywords':kw,
-            'region':'深圳市',
-            'city_limit':'true',
-            }
+    if provider == 'tencent map':
+        title = []
+        address = []
+        location = []
 
-    a = req.get(url=url,params=params)
+        url='https://apis.map.qq.com/ws/place/v1/search'
+        params = params = {'keyword':kw,               
+              'boundary':'region(深圳,0)',
+              'key':'CO6BZ-DDW6M-GHQ6O-6ZHLG-VGKO2-LZFU3',
+              'page_size':1}
 
-    rtdict = eval(a.text)
-    
-    li = []
-    for place in rtdict['pois'][:rsltnum]:
-        li.append((place['name'],place['address'],place['location']))
+        response = req.get(url,params=params)
+        answer = response.json()
+        try:
+            d=answer['data'][0]                    
+            title.append(d['title']) 
+            address.append(d['address'])         
+            location.append(d['location'])
+        except:
+            st.markdown('未找到:'+kw+',超额或错误')
+            c ={'name':title,
+                'address':address,
+                'location':location}
+        return pd.DataFrame(c)
+    else:
+        url='https://restapi.amap.com/v5/place/text?parameters'
+        params = {'key':'1773ce2be463500a6a9086623099e421',
+                'keywords':kw,
+                'region':'深圳市',
+                'city_limit':'true',
+                }
+
+        a = req.get(url=url,params=params)
+
+        rtdict = eval(a.text)
         
-        
-    return pd.DataFrame(li,columns=['name','address','location'])
+        li = []
+        for place in rtdict['pois'][:rsltnum]:
+            li.append((place['name'],place['address'],place['location']))
+            
+            
+        return pd.DataFrame(li,columns=['name','address','location'])
 
 
 
@@ -127,6 +152,9 @@ sttime = st.slider(label='start time',value=time(12,00),step=datetime.timedelta(
 st.markdown('---')
 
 st.markdown('search for POI(amap API) (limited times)')
+import streamlit as st
+
+provider = st.radio('choose location provider',['***tencent map***' ,'***amap***'],captions = ['200times/d','100times/d'])
 rsltnum = st.slider('Result Number',1,10,5)
 stp = st.text_input('Please enter start point')
 dp = st.text_input('Please enter destination')
