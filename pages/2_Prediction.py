@@ -18,30 +18,23 @@ with open('HGBReg.pkl','rb') as file:
 
 
 def getnal(kw,rsltnum):
-    if provider == 'tencent map':
-        title = []
-        address = []
-        location = []
-
+    if provider == '***tencent map***':
+        li = []
         url='https://apis.map.qq.com/ws/place/v1/search'
-        params = params = {'keyword':kw,               
+        params={'keyword':kw,
               'boundary':'region(深圳,0)',
               'key':'CO6BZ-DDW6M-GHQ6O-6ZHLG-VGKO2-LZFU3',
-              'page_size':1}
+              'page_size':3}
 
         response = req.get(url,params=params)
         answer = response.json()
         try:
-            d=answer['data'][0]                    
-            title.append(d['title']) 
-            address.append(d['address'])         
-            location.append(d['location'])
+            for place in answer['data']:
+                li.append((place['title'],place['address'],str(place['location']['lng'])+','+str(place['location']['lat'])))
+            return pd.DataFrame(li,columns=['name','address','location'])
         except:
             st.markdown('未找到:'+kw+',超额或错误')
-            c ={'name':title,
-                'address':address,
-                'location':location}
-        return pd.DataFrame(c)
+            
     else:
         url='https://restapi.amap.com/v5/place/text?parameters'
         params = {'key':'1773ce2be463500a6a9086623099e421',
@@ -53,13 +46,16 @@ def getnal(kw,rsltnum):
         a = req.get(url=url,params=params)
 
         rtdict = eval(a.text)
-        
-        li = []
-        for place in rtdict['pois'][:rsltnum]:
-            li.append((place['name'],place['address'],place['location']))
+        try:
+            li = []
+            for place in rtdict['pois'][:rsltnum]:
+                li.append((place['name'],place['address'],place['location']))
             
-            
-        return pd.DataFrame(li,columns=['name','address','location'])
+            return pd.DataFrame(li,columns=['name','address','location'])
+        except:
+            st.markdown('未找到:'+kw+',超额或错误')    
+    
+    
 
 
 
