@@ -151,7 +151,7 @@ st.markdown('set start time')
 sttime = st.slider(label='start time',value=time(12,00),step=datetime.timedelta(minutes=1))
 st.markdown('---')
 
-st.markdown('search for POI(amap API) (limited times)')
+st.markdown('search for POI (limited times)')
 import streamlit as st
 
 provider = st.radio('choose location provider',['***tencent map***' ,'***amap***'],captions = ['200times/d','100times/d'])
