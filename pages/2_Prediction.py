@@ -18,7 +18,7 @@ with open('HGBReg.pkl','rb') as file:
 
 
 def getnal(kw,rsltnum):
-    if provider == '***tencent map***':
+    if provider == '***腾讯地图***':
         li = []
         url='https://apis.map.qq.com/ws/place/v1/search'
         params={'keyword':kw,
@@ -31,7 +31,7 @@ def getnal(kw,rsltnum):
         try:
             for place in answer['data']:
                 li.append((place['title'],place['address'],str(place['location']['lng'])+','+str(place['location']['lat'])))
-            return pd.DataFrame(li,columns=['name','address','location'])
+            return pd.DataFrame(li,columns=['地点','地址','位置'])
         except:
             st.markdown('未找到:'+kw+',超额或错误')
             
@@ -52,7 +52,7 @@ def getnal(kw,rsltnum):
             for place in rtdict['pois'][:rsltnum]:
                 li.append((place['name'],place['address'],place['location']))
             
-            return pd.DataFrame(li,columns=['name','address','location'])
+            return pd.DataFrame(li,columns=['地点','地址','位置'])
         except:
             st.markdown('未找到:'+kw+',超额或错误')    
     
@@ -123,14 +123,12 @@ def predict(test_data):
     st.write(test_data)
     DTpredict = D.predict(np.array([test_data[:8]]))
     HGBpredict = H.predict(np.array([test_data[:8]]))
-    st.markdown('Decision Tree Result')
-    st.write(DTpredict)
+    st.markdown('Decision Tree 模型预测结果')
     st.write(np.power(10,DTpredict))
-    st.markdown('Hist Gradient Boosting Result')
-    st.write(HGBpredict)
+    st.markdown('Hist Gradient Boosting 模型预测结果')
     st.write(np.power(10,HGBpredict))
 
-st.header('Dual-Model Time Prediction',)
+st.header('双模型时间预测',)
 st.markdown('---')
 
 sz_center = (22.546053,114.025973)
@@ -144,50 +142,49 @@ sz_center = (22.546053,114.025973)
 def click_button():
         st.session_state.clicked = True
 
-st.markdown('set start time')
-sttime = st.slider(label='start time',value=time(12,00),step=datetime.timedelta(minutes=1))
+st.markdown('设置出发时间')
+sttime = st.slider(label='出发时间',value=time(12,00),step=datetime.timedelta(minutes=1))
 st.markdown('---')
 
-st.markdown('search for POI (limited times)')
-import streamlit as st
+st.markdown('搜索地点(有限次数)')
 
-provider = st.radio('choose location provider',['***tencent map***' ,'***amap***'],captions = ['200times/d','100times/d'])
-rsltnum = st.slider('Result Number',1,10,5)
-stp = st.text_input('Please enter start point')
-dp = st.text_input('Please enter destination')
+provider = st.radio('选择位置服务商',['***腾讯地图***' ,'***高德地图***'],captions = ['200条结果/天','100条结果/天'])
+rsltnum = st.slider('搜索结果数量',1,10,5)
+stp = st.text_input('请输入起点')
+dp = st.text_input('请输入终点')
 
 if 'clicked' not in st.session_state:
     st.session_state.clicked = False
 
 
 
-st.button('Search', on_click=click_button,key=1)
+st.button('搜索', on_click=click_button,key=1)
 
 if st.session_state.clicked:
     place1df = getnal(stp,rsltnum)
     st.write(place1df)
-    option1 = st.selectbox('choose 1 start point',range(len(place1df)),key=3)
+    option1 = st.selectbox('选择一个起点',range(len(place1df)),key=3)
     
     
     place2df = getnal(dp,rsltnum)
     st.write(place2df)
-    option2 = st.selectbox('choose 1 destination',range(len(place2df)),key=4)
+    option2 = st.selectbox('选择一个终点',range(len(place2df)),key=4)
     
 
     
-if st.button('input',key=233):
+if st.button('输入模型',key=233):
     coord1 = place1df.iloc[int(option1)][2]
     coord2 = place2df.iloc[int(option2)][2]
     test_data = data_gather(sttime=sttime,SCOL=coord2grid(coord1),ECOL=coord2grid(coord2),coord1=coord1,coord2=coord2)
     predict(test_data)
 
 st.markdown('---')
-st.markdown('manual coordinate input')
+st.markdown('手动输入坐标')
 
-coord1 = st.text_input('start point',placeholder='lat,lon')
-coord2 = st.text_input('destination',placeholder='lat,lon')
+coord1 = st.text_input('起点坐标',placeholder='经度,纬度')
+coord2 = st.text_input('终点坐标',placeholder='经度,纬度')
 
-if st.button('input',key=666):
+if st.button('输入模型',key=666):
     test_data = data_gather(sttime=sttime,SCOL=coord2grid(coord1),ECOL=coord2grid(coord2),coord1=coord1,coord2=coord2)
     predict(test_data)
 
