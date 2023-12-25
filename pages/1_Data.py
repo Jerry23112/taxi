@@ -9,30 +9,31 @@ import seaborn as sns
 def plot_time():
     data = pd.read_csv('TaxiData-Sample.csv',header = None)
     data.columns = ['VehicleNum', 'Stime', 'Lng', 'Lat', 'OpenStatus', 'Speed']
-    data.head(5)
     data['Hour'] = data['Stime'].apply(lambda r:r[:2])
     hourcount = data.groupby(data['Hour'])
     hourcount = hourcount['VehicleNum'].count().reset_index()
+
     sns.set_style('darkgrid',{'xtick.major.size':10,'ytick.major.size':10})
 
     fig     = plt.figure(1,(8,4),dpi = 300)    
     ax      = plt.subplot(111)
     plt.sca(ax)
-    
+    plt.plot(hourcount['Hour'],hourcount['VehicleNum'],'k-',hourcount['Hour'],hourcount['VehicleNum'],'k.')
     plt.bar(hourcount['Hour'],hourcount['VehicleNum'],width = 0.5)
     plt.title('Hourly data Volume')
     plt.ylim(0,80000)
     plt.ylabel('Data volume')
     plt.xlabel('Hour')
-    plt.savefig(fname = 'test.svg',format = 'svg',bbox_inches = 'tight')
-    plt.plot(hourcount['Hour'],hourcount['VehicleNum'],'k-',hourcount['Hour'],hourcount['VehicleNum'],'k.')
-    st.markdown('\n每小时数据量')
     st.write(fig)
+    plt.close()
+
     dataod = pd.read_csv('TaxiOD.csv')
     dataod.columns = ['VehicleNum','Stime','SLng','SLat','ELng','ELat','Etime']
+
     dataod['Hour'] = dataod['Stime'].apply(lambda y:y.split(':')[0])
     hourcountod = dataod.groupby(dataod['Hour'])
     hourcountod = hourcountod['VehicleNum'].count().reset_index()
+
     sns.set_style('darkgrid',{'xtick.major.size':10,'ytick.major.size':10})
 
     fig     = plt.figure(1,(8,4),dpi = 300)    
@@ -44,9 +45,8 @@ def plot_time():
     plt.ylim(0,30000)
     plt.ylabel('Order volume')
     plt.xlabel('Hour')
-    plt.savefig(fname = 'od.svg',format = 'svg',bbox_inches = 'tight')
-    st.markdown('\n每小时订单量')
     st.write(fig)
+    plt.close()
 
     dataod['order time'] = pd.to_datetime(dataod['Etime'])-pd.to_datetime(dataod['Stime'])
     dataod = dataod[-dataod['ELng'].isnull()]
@@ -64,6 +64,7 @@ def plot_time():
     plt.ylim(0,60)
     st.markdown('\n每小时订单量-box图')
     st.write(fig)
+    plt.close()
 
 
 @st.cache_data
@@ -82,8 +83,11 @@ def plot_space():
     
     sz.plot(ax=ax)
     st.markdown('\n深圳行政区划')
+    
     st.write(fig)
+
     plt.close()
+    
 
     import math
 
@@ -149,12 +153,14 @@ def plot_space():
     fig.set_size_inches(8,8)
     #data.plot(ax=ax)
     #st.write(fig)
-    plt.close()
+    
     grid = data[data.intersects(sz.unary_union)]
     grid.plot(ax=ax)
     st.markdown('\n栅格化')
+   
     st.write(fig)
     plt.close()
+
     TaxiOD = pd.read_csv('TaxiOD.csv')
     TaxiOD.columns = ['VehicleNum','Stime','SLng','SLat','ELng','ELat','Etime']
 
@@ -238,6 +244,7 @@ def plot_space():
     freq_grid.plot(ax =ax,column = 'freq',cmap=cmap_f,linewidths=0.05)
     st.markdown('\n起点栅格热度图')
     st.write(fig)
+    plt.close()
 
 
     
@@ -257,32 +264,33 @@ def plot_train():
     sns.heatmap(corr,annot=True,fmt='.2f',cmap='coolwarm')
     st.markdown('\n相关性热力图')
     st.write(fig)
+    plt.close()
 
     fig,ax = plt.subplots()
-    sns.displot(data['interval'],kde=True)
+    sns.distplot(data['interval'],kde=True)
     plt.title('Distrubution of interval')
     plt.xlabel('interval')
     plt.ylabel('Frequency')
-    plt.show()
     st.markdown('\n订单时长分布图')
     st.write(fig)
+    plt.close()
 
     fig,ax = plt.subplots()
-    sns.displot(data['lginterval'],kde=True)
+    sns.distplot(data['lginterval'],kde=True)
     plt.title('Distrubution of lginterval')
     plt.xlabel('lginterval')
     plt.ylabel('Frequency')
-    plt.show()
     st.markdown('\n订单时长对数分布图')
     st.write(fig)
+    plt.close()
 
     fig,ax = plt.subplots()
     sns.boxplot(y=data['lginterval'])
     plt.title('Boxplot of lginterval')
     plt.ylabel('lginterval')
-    plt.show()
     st.markdown('\n订单时长对数box图')
     st.write(fig)
+    plt.close()
 
     fig = plt.figure(figsize=(15,5))
     plt.subplot(1,2,1)
@@ -292,14 +300,15 @@ def plot_train():
     sns.scatterplot(x=data['dtdis'],y=data['lginterval'])
     plt.title('lginterval vs dtdis')
     plt.tight_layout()
-    plt.show()
     st.markdown('\n订单时长对数vs路径距离散点图')
     st.write(fig)
+    plt.close()
     
     fig,ax = plt.subplots()
     sns.barplot(data=data,x='isrushhour',y='interval',ax=ax)
     st.markdown('\n高峰期与否对时长影响')
     st.write(fig)
+    plt.close()
     
     
     from sklearn.model_selection import train_test_split
